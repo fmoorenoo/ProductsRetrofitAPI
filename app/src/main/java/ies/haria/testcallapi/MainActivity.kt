@@ -3,12 +3,8 @@ package ies.haria.testcallapi
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.activity.viewModels
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
@@ -20,9 +16,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import ies.haria.testcallapi.ui.theme.TestCallApiTheme
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -30,8 +26,19 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.room.Room
-import ies.haria.testcallapi.db.ProductDatabase
+import androidx.compose.ui.platform.LocalContext
+import ies.haria.testcallapi.data.db.ProductDatabase
+import ies.haria.testcallapi.data.ProductDBViewModel
+import ies.haria.testcallapi.data.ProductViewModel
+import ies.haria.testcallapi.ui.theme.TestCallApiTheme
 
+enum class ScreenList {
+    ProductList,
+    FavoriteList,
+    SearchScreen
+}
+
+@Suppress("UNCHECKED_CAST")
 class MainActivity : ComponentActivity() {
     val db by lazy {
         Room.databaseBuilder(
@@ -42,7 +49,6 @@ class MainActivity : ComponentActivity() {
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
             TestCallApiTheme(dynamicColor = false) {
                 val navController: NavHostController = rememberNavController()
@@ -55,21 +61,32 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                 ) { innerPadding ->
+                    val databaseViewModel: ProductDBViewModel by viewModels<ProductDBViewModel>(
+                        factoryProducer = {
+                            object : ViewModelProvider.Factory {
+                                override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                                    return ProductDBViewModel(db.dao) as T
+                                }
+                            }
+                        }
+                    )
                     val productViewModel: ProductViewModel = viewModel()
                     val context = LocalContext.current
                     NavHost(
                         navController = navController,
-                        startDestination = "product_list_screen",
-                        modifier = Modifier.fillMaxSize().padding(innerPadding)
+                        startDestination = ScreenList.ProductList.name,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding)
                     ) {
-                        composable(route = "product_list_screen") {
-                            ProductListScreen(productViewModel, context, innerPadding)
+                        composable(route = ScreenList.ProductList.name) {
+                            ProductListScreen(productViewModel, databaseViewModel, context)
                         }
-                        composable(route = "favorite_list_screen") {
-                            FavoriteListScreen()
+                        composable(route = ScreenList.FavoriteList.name) {
+                            FavoriteListScreen(databaseViewModel, context)
                         }
-                        composable(route = "search_screen") {
-                            SearchScreen()
+                        composable(route = ScreenList.SearchScreen.name) {
+                            SearchScreen(productViewModel, databaseViewModel, context)
                         }
                     }
                 }
@@ -86,30 +103,32 @@ fun BottomBarItems(navController: NavController) {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         IconButton(
-            onClick = { navController.navigate("product_list_screen") }
+            onClick = { navController.navigate(ScreenList.ProductList.name) },
         ) {
             Icon(
                 modifier = Modifier.fillMaxSize(),
                 imageVector = Icons.Filled.Home,
-                contentDescription = "Lista de productos"
+                contentDescription = "Lista Productos"
             )
         }
         IconButton(
-            onClick = { navController.navigate("favorite_list_screen") }
+            modifier = Modifier.padding(start = 30.dp),
+            onClick = { navController.navigate(ScreenList.FavoriteList.name) },
         ) {
             Icon(
                 modifier = Modifier.fillMaxSize(),
                 imageVector = Icons.Filled.Favorite,
-                contentDescription = "Lista de favoritos"
+                contentDescription = "Favoritos Productos"
             )
         }
         IconButton(
-            onClick = { navController.navigate("search_screen") }
+            modifier = Modifier.padding(start = 30.dp),
+            onClick = { navController.navigate(ScreenList.SearchScreen.name) },
         ) {
             Icon(
                 modifier = Modifier.fillMaxSize(),
                 imageVector = Icons.Filled.Search,
-                contentDescription = "Búsqueda productos"
+                contentDescription = "Búsqueda de Productos"
             )
         }
     }
