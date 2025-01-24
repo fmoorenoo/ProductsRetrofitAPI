@@ -1,9 +1,9 @@
 package ies.haria.testcallapi
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import android.os.Build
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -13,10 +13,6 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import coil.ImageLoader
-import android.os.Build
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.Text
 import coil.compose.rememberAsyncImagePainter
 import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
@@ -32,15 +28,17 @@ fun LoadingScreen() {
         Text(
             modifier = Modifier.padding(bottom = 40.dp),
             text = "CARGANDO...",
-            fontWeight = FontWeight.Bold,
-            fontSize = TextUnit(8f, TextUnitType.Em)
+            fontSize = TextUnit(8f, TextUnitType.Em),
+            fontWeight = FontWeight.Bold
         )
         LoadingGif()
     }
 }
 
 @Composable
-fun LoadingGif() {
+fun LoadingGif(
+    modifier: Modifier = Modifier,
+) {
     val context = LocalContext.current
     val imageLoader = ImageLoader.Builder(context)
         .components {
@@ -56,14 +54,12 @@ fun LoadingGif() {
             ImageRequest
                 .Builder(context)
                 .data(data = R.drawable.loading)
-                .apply(
-                    block = {
-                        size(400)
-                    }
-                ).build(),
-                    imageLoader = imageLoader
+                .apply(block = {
+                    size(400)
+                }
+                ).build(), imageLoader = imageLoader
         ),
         contentDescription = null,
-        modifier = Modifier.fillMaxWidth()
+        modifier = modifier.fillMaxWidth(),
     )
 }
