@@ -1,8 +1,8 @@
-package ies.haria.testcallapi.db
+package ies.haria.testcallapi.data.db
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import ies.haria.testcallapi.network.product.model.ProductResponse
+import ies.haria.testcallapi.network.ProductResponse
 
 @Entity
 data class Product(

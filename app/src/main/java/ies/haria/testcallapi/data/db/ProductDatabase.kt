@@ -1,4 +1,5 @@
-package ies.haria.testcallapi.db
+package ies.haria.testcallapi.data.db
+
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
