@@ -1,9 +1,9 @@
-package ies.haria.testcallapi.network.product.model
+package ies.haria.testcallapi.network
 
 import com.google.gson.annotations.SerializedName
 
-data class ProductListResponse (
-    @SerializedName("products") var productList: List<ProductResponse>,
+data class ProductsResponse(
+    @SerializedName("products") var products: List<ProductResponse>,
     @SerializedName("total") var total: Int,
     @SerializedName("skip") var skip: Int,
     @SerializedName("limit") var limit: Int
